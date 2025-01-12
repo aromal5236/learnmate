@@ -1,0 +1,337 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <link rel="icon" href="{% static 'images/logo.jpg' %}">
+    <title>LearnMate</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .null {
+            display: none;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: #363f74;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            height: 100%;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 1000;
+        }
+        .imagecontainer img {
+            width: 100%;
+            border-radius: 50%;
+            display: block;
+        }
+        .imagecontainer {
+            width: 100px;
+            margin: 0 auto;
+            margin-bottom: 28px;
+        }
+        .sidebar h2 {
+            margin-bottom: 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: auto;
+        }
+        .sidebar li {
+            padding: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            border: 1px solid #68709f;
+            margin-bottom: 18px;
+            border-radius: 8px;
+        }
+        .sidebar li:hover {
+            background-color: #68709f;
+            border-radius: 5px;
+        }
+        .sidebar .new-chat {
+            font-size: 20px;
+            text-align: center;
+            cursor: pointer;
+            background-color: #363f74;
+            border-radius: 50%;
+            padding: 12px;
+            width: 50px;
+            margin: 0 auto;
+            margin-top: 20px;
+        }
+        .sidebar .new-chat:hover {
+            background-color: #68709f;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            margin-left: 250px; /* Offset for the sidebar */
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 20px;
+            overflow: hidden;
+        }
+        .chat-header {
+            background-color: #363f74;
+            color: white;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            border-bottom: 2px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background-color: #ffffff;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            align-items: center;
+        }
+        textarea {
+            width: 80%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: none;
+            outline: none;
+            height: 40px;
+            background-color: #f9f9f9;
+            margin-right: 10px;
+        }
+        button, label {
+            background-color: #363f74;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin: 0 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover, label:hover {
+            background-color: #68709f;
+        }
+        button:focus, label:focus {
+            outline: none;
+        }
+        .message {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            max-width: 70%;
+            word-wrap: break-word;
+            display: flex;
+            justify-content: flex-start;
+        }
+        .user {
+            background-color: #DCF8C6;
+            align-self: flex-end;
+            text-align: right;
+            margin-left: auto; /* Align user message to the right */
+            border-radius: 12px 12px 0 12px; /* Rounded corners */
+        }
+        .bot {
+            background-color: #e4e6eb;
+            align-self: flex-start;
+            text-align: left;
+            margin-right: auto; /* Align bot message to the left */
+            border-radius: 12px 12px 12px 0; /* Rounded corners */
+        }
+        .code {
+            background-color: #f5f5f5;
+            font-family: monospace;
+            padding: 10px;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="imagecontainer">
+            <img src="{% static 'images/logo.jpg' %}" alt="">
+        </div>
+        <ul>
+            <li>history</li>
+            <li>settings</li>
+            <li>help</li>
+        </ul>
+        <div class="new-chat">+</div>
+    </div>
+
+    <!-- Chat Container -->
+    <div class="chat-container">    
+        <div class="chat-header">LearnMate</div>
+        <div class="chat-messages" id="chat-messages">
+            <!-- Messages will appear here dynamically -->
+        </div>
+        <div class="chat-input">
+            <textarea id="message" rows="1" placeholder="type your text..."></textarea>
+            <button onclick="sendMessage()">send</button>
+            <button onclick="startVoiceInput()">🎤</button>
+            <label for="image-upload">📷</label>
+            <input class="null" type="file" id="image-upload" accept="image/*" onchange="handleImageUpload(event)">
+        </div>
+    </div>
+
+    <script>
+        function startVoiceInput() {
+            const messageInput = document.getElementById('message');
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'ml-IN';
+            recognition.interimResults = true;
+
+            recognition.start();
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[event.resultIndex][0].transcript;
+                messageInput.value = transcript;
+            };
+
+            recognition.onerror = (event) => console.error('Speech Recognition Error:', event.error);
+            recognition.onend = () => console.log('Voice recognition ended');
+        }
+
+        document.querySelector('.new-chat').addEventListener('click', () => {
+            window.open(window.location.href, '_blank');
+            document.getElementById('chat-messages').innerHTML = '';
+        });
+
+        async function sendMessage() {
+            const messageInput = document.getElementById('message');
+            const messagesContainer = document.getElementById('chat-messages');
+            const userMessage = messageInput.value.trim();
+
+            if (!userMessage) return;
+
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.classList.add('message', 'user');
+            userMessageDiv.textContent = userMessage;
+            messagesContainer.appendChild(userMessageDiv);
+
+            messageInput.value = '';
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.classList.add('message', 'bot');
+            loadingDiv.textContent = 'typing...';
+            messagesContainer.appendChild(loadingDiv);
+
+            try {
+                const response = await fetch('/chat/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userMessage }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    loadingDiv.remove();
+
+                    if (data.response.startsWith('```')) {
+                        const codeBlock = document.createElement('div');
+                        codeBlock.classList.add('message', 'code');
+                        codeBlock.textContent = data.response.replace(/```/g, '');
+                        messagesContainer.appendChild(codeBlock);
+                    } else {
+                        const botMessageDiv = document.createElement('div');
+                        botMessageDiv.classList.add('message', 'bot');
+                        botMessageDiv.textContent = data.response;
+                        messagesContainer.appendChild(botMessageDiv);
+                        speakResponse(data.response);
+                    }
+                } else {
+                    loadingDiv.textContent = 'Error: Unable to fetch response.';
+                }
+            } catch (error) {
+                loadingDiv.textContent = 'Error: Something went wrong.';
+            }
+
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function speakResponse(responseText) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(responseText);
+            utterance.lang = 'ml-IN';
+            window.speechSynthesis.speak(utterance);
+        }
+
+        document.getElementById('message').addEventListener('keypress', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append("image", file);
+
+            const messagesContainer = document.getElementById('chat-messages');
+            const imageMessageDiv = document.createElement('div');
+            imageMessageDiv.classList.add('message', 'user');
+
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.onload = () => {
+                messagesContainer.appendChild(imageMessageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            };
+            imageMessageDiv.appendChild(img);
+        }
+    </script>
+</body>
+</html>
