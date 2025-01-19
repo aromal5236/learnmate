@@ -14,7 +14,7 @@ def chat_api(request):
             return JsonResponse({'error': 'Message is required.'}, status=400)
 
         # Groq API setup
-        client = Groq(api_key="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")
+        client = Groq(api_key="API_KEY")
         chat_completion = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": "you are a helpful assistant."},
